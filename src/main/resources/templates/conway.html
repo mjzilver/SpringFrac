@@ -21,14 +21,39 @@
 
     <br>
     <button onclick="stompClient.send('/app/renew')">Reset</button>
-    <button onclick="stompClient.send('/app/update')">Next</button>
+    <button onclick="toggleUpdate()">Pause/Resume</button>
+
+    <label for="updateInterval">Update Interval (ms):</label>
+    <input type="range" id="updateInterval" min="10" max="1000" step="10" value="100" oninput="updateIntervalChanged()">
+    <span id="intervalValue">100</span>
+
+    <br>
+    <label for="canvasWidth">Canvas Width:</label>
+    <input type="range" id="canvasWidth" min="100" max="1000" step="10" value="" oninput="resizeCanvas()">
+    <span id="widthValue"></span>
+
+    <br>
+    <label for="canvasHeight">Canvas Height:</label>
+    <input type="range" id="canvasHeight" min="100" max="1000" step="10" value="" oninput="resizeCanvas()">
+    <span id="heightValue"></span>
 
     <script th:inline="javascript">
+        document.getElementById('canvasWidth').value = /*[[${#lists.size(conway[0]) * 10}]]*/1;
+        document.getElementById('widthValue').innerText = /*[[${#lists.size(conway[0]) * 10}]]*/1;
+
+        document.getElementById('canvasHeight').value = /*[[${#lists.size(conway) * 10}]]*/1;
+        document.getElementById('heightValue').innerText = /*[[${#lists.size(conway) * 10}]]*/1;
+
+
         var canvas = document.getElementById('conwayCanvas');
         var ctx = canvas.getContext('2d');
         var zoom = 10;
         var socket = new SockJS('/ws');
         var stompClient = Stomp.over(socket);
+        var isPaused = false;
+        var updateInterval = 100;
+
+        stompClient.debug = null;
 
         stompClient.connect({}, function (frame) {
             stompClient.subscribe('/conway/board', function (conwayData) {
@@ -41,10 +66,35 @@
             });
 
             // Set up setInterval for periodic updates
-            setInterval(function () {
-                stompClient.send("/app/update");
-            }, 100);
+            startUpdateInterval();
         });
+
+        canvas.addEventListener('click', function (event) {
+            var colIndex = Math.floor(event.offsetX / zoom);
+            var rowIndex = Math.floor(event.offsetY / zoom);
+
+            stompClient.send("/app/click", {}, JSON.stringify({ rowIndex: rowIndex, colIndex: colIndex }));
+        });
+
+        window.addEventListener('resize', function () {
+            resizeCanvas();
+            sendCanvasSize();
+        });
+
+        function resizeCanvas() {
+            var newWidth = parseInt(document.getElementById('canvasWidth').value);
+            var newHeight = parseInt(document.getElementById('canvasHeight').value);
+
+            canvas.width = newWidth;
+            canvas.height = newHeight;
+
+            document.getElementById('widthValue').innerText = newWidth;
+            document.getElementById('heightValue').innerText = newHeight;
+
+            document.getElementById('intervalValue').innerText = updateInterval;
+
+            stompClient.send("/app/resizeBoard", {}, JSON.stringify({ rows: newHeight / zoom, cols: newWidth / zoom }));
+        }
 
         function drawBoard(conwayData) {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -64,6 +114,23 @@
                     }
                 });
             });
+        }
+
+        function startUpdateInterval() {
+            setInterval(function () {
+                if (!isPaused) {
+                    stompClient.send("/app/update");
+                }
+            }, updateInterval);
+        }
+
+        function toggleUpdate() {
+            isPaused = !isPaused;
+        }
+
+        function updateIntervalChanged() {
+            updateInterval = parseInt(document.getElementById('updateInterval').value);
+            document.getElementById('intervalValue').innerText = updateInterval;
         }
     </script>
 </body>

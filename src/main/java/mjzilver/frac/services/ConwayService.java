@@ -16,12 +16,40 @@ public class ConwayService {
         return generationCount;
     }
     
+    public boolean[][] getBoard() {
+        return board;
+    }
+
+    public boolean[][] resize(int newRows, int newCols) {
+        boolean[][] newBoard = new boolean[newRows][newCols];
+
+        for (int i = 0; i < newRows; i++) {
+            for (int j = 0; j < newCols; j++) {
+                if (i < rows && j < cols) {
+                    newBoard[i][j] = board[i][j];
+                } else {
+                    newBoard[i][j] = random.nextBoolean();
+                }
+            }
+        }
+
+        rows = newRows;
+        cols = newCols;
+        board = newBoard;
+        
+        return board;
+    }
+    
     public ConwayService() {
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < cols; j++) {
                 board[i][j] = random.nextBoolean();
             }
         }
+    }
+
+    public void click(int x, int y) {
+        board[x][y] = !board[x][y];
     }
 
     public boolean[][] renew() {
