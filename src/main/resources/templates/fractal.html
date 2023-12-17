@@ -15,9 +15,24 @@
     <!-- Display the fractal using canvas -->
     <canvas id="fractalCanvas" th:width="${#lists.size(fractal[0])}" th:height="${#lists.size(fractal)}"></canvas>
 
+    <br>
+    <label for="fractalType">Select Fractal:</label>
+    <select id="fractalType" onchange="changeFractalType()">
+        <option value="mandelbrot">Mandelbrot</option>
+        <option value="julia">Julia Set</option>
+        <option value="burningShip">Burning Ship Fractal</option>
+        <option value="tricorn">Tricorn Fractal</option>
+        <option value="multibrot">Multibrot Fractal</option>
+        <option value="sierpinski">Sierpinski Triangle</option>
+        <option value="dragon">Dragon Curve</option>
+        <option value="barnsley">Barnsley Fern</option>
+        <option value="serpinskiCarpet">Sierpinski Carpet</option>
+        <option value="phoenix">Phoenix Fractal</option>
+        <option value="sine">Sine Fractal</option>
+    </select>    
+
     <script th:inline="javascript">
         var fractalData = /*[[${fractal}]]*/ null; // Access fractalData in JavaScript
-
         var canvas = document.getElementById('fractalCanvas');
         var ctx = canvas.getContext('2d');
         var zoom = 1;
@@ -27,14 +42,13 @@
 
             fractalData.forEach(function(row, rowIndex) {
                 row.forEach(function(value, colIndex) {
-                    var color = value < 1000 ? 'rgb(' + value * 255 / 1000 + ',0,0)' : 'rgb(0,0,0)';
+                    var color = value < 1000 ? 'rgb(' + (value * 10) * 255 / 1000 + ',0,0)' : 'rgb(0,0,0)';
                     ctx.fillStyle = color;
                     // make every box 10 px
                     ctx.fillRect(colIndex * zoom, rowIndex * zoom, zoom, zoom);
                 });
             });
         }
-
 
         drawFractal();
     </script>
