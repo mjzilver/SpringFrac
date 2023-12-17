@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Mandelbrot Set Viewer</title>
+    <style>
+        canvas {
+            border: 1px solid #000;
+        }
+    </style>
+</head>
+<body>
+    <h1>Mandelbrot Set Viewer</h1>
+
+    <!-- Display the fractal using canvas -->
+    <canvas id="fractalCanvas" th:width="${#lists.size(fractal[0])}" th:height="${#lists.size(fractal)}"></canvas>
+
+    <script th:inline="javascript">
+        var fractalData = /*[[${fractal}]]*/ null; // Access fractalData in JavaScript
+
+        var canvas = document.getElementById('fractalCanvas');
+        var ctx = canvas.getContext('2d');
+        var zoom = 1;
+
+        function drawFractal() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            fractalData.forEach(function(row, rowIndex) {
+                row.forEach(function(value, colIndex) {
+                    var color = value < 1000 ? 'rgb(' + value * 255 / 1000 + ',0,0)' : 'rgb(0,0,0)';
+                    ctx.fillStyle = color;
+                    // make every box 10 px
+                    ctx.fillRect(colIndex * zoom, rowIndex * zoom, zoom, zoom);
+                });
+            });
+        }
+
+
+        drawFractal();
+    </script>
+</body>
+</html>

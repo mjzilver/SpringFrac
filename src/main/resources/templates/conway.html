@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Conway Game of Life</title>
+    <style>
+        canvas {
+            border: 1px solid #000;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Conway Game of Life</h1>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.4/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+
+    <canvas id="conwayCanvas" th:width="${#lists.size(conway[0]) * 10}"
+        th:height="${#lists.size(conway) * 10}"></canvas>
+
+    <br>
+    <button onclick="stompClient.send('/app/renew')">Reset</button>
+    <button onclick="stompClient.send('/app/update')">Next</button>
+
+    <script th:inline="javascript">
+        var canvas = document.getElementById('conwayCanvas');
+        var ctx = canvas.getContext('2d');
+        var zoom = 10;
+        var socket = new SockJS('/ws');
+        var stompClient = Stomp.over(socket);
+
+        stompClient.connect({}, function (frame) {
+            stompClient.subscribe('/conway/board', function (conwayData) {
+                try {
+                    var parsedData = JSON.parse(conwayData.body);
+                    drawBoard(parsedData);
+                } catch (error) {
+                    console.error('Error processing message:', error);
+                }
+            });
+
+            // Send an initial request
+            stompClient.send("/app/renew");
+
+            // Set up setInterval for periodic updates
+            setInterval(function () {
+                stompClient.send("/app/update");
+            }, 100);
+
+        });
+
+        function drawBoard(conwayData) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            conwayData.forEach(function (row, rowIndex) {
+                row.forEach(function (value, colIndex) {
+                    if (value) {
+                        // Draw a live cell
+                        ctx.fillStyle = '#000';
+                        ctx.fillRect(colIndex * zoom, rowIndex * zoom, zoom, zoom);
+                    } else {
+                        // Draw a dead cell
+                        ctx.fillStyle = '#fff';
+                        ctx.fillRect(colIndex * zoom, rowIndex * zoom, zoom, zoom);
+                        ctx.strokeStyle = '#000';
+                        ctx.strokeRect(colIndex * zoom, rowIndex * zoom, zoom, zoom);
+                    }
+                });
+            });
+        }
+    </script>
+</body>
+
+</html>
