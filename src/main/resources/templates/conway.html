@@ -40,14 +40,10 @@
                 }
             });
 
-            // Send an initial request
-            stompClient.send("/app/renew");
-
             // Set up setInterval for periodic updates
             setInterval(function () {
                 stompClient.send("/app/update");
             }, 100);
-
         });
 
         function drawBoard(conwayData) {
