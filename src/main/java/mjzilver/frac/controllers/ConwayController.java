@@ -35,8 +35,8 @@ public class ConwayController {
 
     @MessageMapping("/renew")
     @SendTo("/conway/board")
-    public boolean[][] renewConway() {
-        return conwayService.renew();
+    public boolean[][] renewConway(int randomness) {
+        return conwayService.renew(randomness);
     }
 
     @MessageMapping("/click")

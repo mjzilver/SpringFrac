@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 public class ConwayService {
     int rows = 50;
     int cols = 50;
+    int randomness = 50;
     int generationCount = 0;
     boolean[][] board = new boolean[rows][cols];
     Random random = new Random();
@@ -20,6 +21,16 @@ public class ConwayService {
         return board;
     }
 
+    public void printBoard() {
+        System.out.println("Generation: " + generationCount);
+        for (boolean[] row : board) {
+            for (boolean cell : row) {
+                System.out.print(cell ? "1" : "0");
+            }
+            System.out.println();
+        }
+    }
+
     public boolean[][] resize(int newRows, int newCols) {
         boolean[][] newBoard = new boolean[newRows][newCols];
 
@@ -28,7 +39,7 @@ public class ConwayService {
                 if (i < rows && j < cols) {
                     newBoard[i][j] = board[i][j];
                 } else {
-                    newBoard[i][j] = random.nextBoolean();
+                    newBoard[i][j] = (random.nextInt(100) < randomness);
                 }
             }
         }
@@ -43,7 +54,7 @@ public class ConwayService {
     public ConwayService() {
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < cols; j++) {
-                board[i][j] = random.nextBoolean();
+                board[i][j] = (random.nextInt(100) < randomness);
             }
         }
     }
@@ -52,14 +63,15 @@ public class ConwayService {
         board[x][y] = !board[x][y];
     }
 
-    public boolean[][] renew() {
+    public boolean[][] renew(int newRandomness) {
         board = new boolean[rows][cols];
         random = new Random();
         generationCount = 0;
+        randomness = newRandomness;
         
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < cols; j++) {
-                board[i][j] = random.nextBoolean();
+                board[i][j] = (random.nextInt(100) < randomness);
             }
         }
 

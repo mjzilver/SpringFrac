@@ -20,9 +20,15 @@
         th:height="${#lists.size(conway) * 10}"></canvas>
 
     <br>
-    <button onclick="stompClient.send('/app/renew')">Reset</button>
+    <button onclick="renewClick()">Reset</button>
     <button onclick="toggleUpdate()">Pause/Resume</button>
 
+    <br>
+    <label for="randomnessSlider">Randomness</label>
+    <input type="range" id="randomness" min="1" max="100" step="1" value="50" oninput="updateRandomness()">
+    <span id="randomnessValue">50</span>
+
+    <br>
     <label for="updateInterval">Update Interval (ms):</label>
     <input type="range" id="updateInterval" min="10" max="1000" step="10" value="100" oninput="updateIntervalChanged()">
     <span id="intervalValue">100</span>
@@ -40,10 +46,8 @@
     <script th:inline="javascript">
         document.getElementById('canvasWidth').value = /*[[${#lists.size(conway[0]) * 10}]]*/1;
         document.getElementById('widthValue').innerText = /*[[${#lists.size(conway[0]) * 10}]]*/1;
-
         document.getElementById('canvasHeight').value = /*[[${#lists.size(conway) * 10}]]*/1;
         document.getElementById('heightValue').innerText = /*[[${#lists.size(conway) * 10}]]*/1;
-
 
         var canvas = document.getElementById('conwayCanvas');
         var ctx = canvas.getContext('2d');
@@ -78,7 +82,6 @@
 
         window.addEventListener('resize', function () {
             resizeCanvas();
-            sendCanvasSize();
         });
 
         function resizeCanvas() {
@@ -131,6 +134,16 @@
         function updateIntervalChanged() {
             updateInterval = parseInt(document.getElementById('updateInterval').value);
             document.getElementById('intervalValue').innerText = updateInterval;
+        }
+
+        function updateRandomness() {
+            var randomness = parseInt(document.getElementById('randomness').value);
+            document.getElementById('randomnessValue').innerText = randomness;
+        }
+
+        function renewClick() {
+            var randomness = parseInt(document.getElementById('randomness').value);
+            stompClient.send("/app/renew", {}, randomness);
         }
     </script>
 </body>
