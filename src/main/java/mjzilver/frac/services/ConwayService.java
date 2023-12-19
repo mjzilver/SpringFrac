@@ -16,7 +16,7 @@ public class ConwayService {
     public int getGenerationCount() {
         return generationCount;
     }
-    
+
     public boolean[][] getBoard() {
         return board;
     }
@@ -47,10 +47,10 @@ public class ConwayService {
         rows = newRows;
         cols = newCols;
         board = newBoard;
-        
+
         return board;
     }
-    
+
     public ConwayService() {
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < cols; j++) {
@@ -68,7 +68,7 @@ public class ConwayService {
         random = new Random();
         generationCount = 0;
         randomness = newRandomness;
-        
+
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < cols; j++) {
                 board[i][j] = (random.nextInt(100) < randomness);
@@ -125,5 +125,39 @@ public class ConwayService {
         board = nextGeneration;
 
         return nextGeneration;
+    }
+
+    public boolean[][] textToBoard(String text) {
+        try {
+            int textIndex = 0;
+
+            String[] lines = text.split("\n");
+
+            // row and cols from new lines
+            int newRows = lines.length;
+            int newCols = lines[0].length();
+
+            boolean[][] newBoard = new boolean[newRows][newCols];
+
+            for (String line : lines) {
+                for (int i = 0; i < line.length(); i++) {
+                    char c = line.charAt(i);
+                    if (c == 'O') {
+                        newBoard[textIndex][i] = true;
+                    } else {
+                        newBoard[textIndex][i] = false;
+                    }
+                }
+                textIndex++;
+                System.out.println();
+            }
+
+            board = newBoard;
+            rows = newRows;
+            cols = newCols;
+            return board;
+        } catch (Exception e) {
+            return board;
+        }
     }
 }

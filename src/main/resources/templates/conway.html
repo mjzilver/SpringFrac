@@ -24,8 +24,8 @@
     <button onclick="toggleUpdate()">Pause/Resume</button>
 
     <br>
-    <label for="randomnessSlider">Randomness</label>
-    <input type="range" id="randomness" min="1" max="100" step="1" value="50" oninput="updateRandomness()">
+    <label for="randomnessSlider">Random filled</label>
+    <input type="range" id="randomness" min="0" max="100" step="1" value="50" oninput="updateRandomness()">
     <span id="randomnessValue">50</span>
 
     <br>
@@ -43,6 +43,11 @@
     <input type="range" id="canvasHeight" min="100" max="1000" step="10" value="" oninput="resizeCanvas()">
     <span id="heightValue"></span>
 
+    <br>
+    <textarea id="textInput" rows="10" cols="50"></textarea>
+    <br>
+    <button onclick="sendText()">Send Text</button>
+    <button onclick="convertToText()">To Text</button>
     <script th:inline="javascript">
         document.getElementById('canvasWidth').value = /*[[${#lists.size(conway[0]) * 10}]]*/1;
         document.getElementById('widthValue').innerText = /*[[${#lists.size(conway[0]) * 10}]]*/1;
@@ -57,6 +62,7 @@
         var isPaused = false;
         var updateInterval = 100;
         var intervalId = null;
+        var conway = /*[[${conway}]]*/ null; // Access conwayData in JavaScript
 
         stompClient.debug = null;
 
@@ -118,6 +124,8 @@
                     }
                 });
             });
+
+            conway = conwayData;
         }
 
         function startUpdateInterval() {
@@ -148,6 +156,21 @@
         function renewClick() {
             var randomness = parseInt(document.getElementById('randomness').value);
             stompClient.send("/app/renew", {}, randomness);
+        }
+
+        function sendText() {
+            var text = document.getElementById('textInput').value;
+            stompClient.send("/app/text", {}, text);
+        }
+
+        function convertToText() {
+            // map conway booleans to O and .
+            var text = conway.map(function (row) {
+                return row.map(function (value) {
+                    return value ? 'O' : '.';
+                }).join('');
+            }).join('\n');
+            document.getElementById('textInput').value = text;
         }
     </script>
 </body>

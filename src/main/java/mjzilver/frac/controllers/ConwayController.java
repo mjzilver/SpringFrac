@@ -56,5 +56,11 @@ public class ConwayController {
         conwayService.resize(payload.getRows(), payload.getCols());
         return conwayService.getBoard();
     }
+
+    @MessageMapping("/text")
+    @SendTo("/conway/board")
+    public boolean[][] textConway(String text) {
+        return conwayService.textToBoard(text);
+    }
 }
 
