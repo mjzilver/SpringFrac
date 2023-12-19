@@ -11,46 +11,84 @@
 </head>
 <body>
     <h1>Mandelbrot Set Viewer</h1>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.4/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
 
     <!-- Display the fractal using canvas -->
-    <canvas id="fractalCanvas" th:width="${#lists.size(fractal[0])}" th:height="${#lists.size(fractal)}"></canvas>
+    <canvas id="fractalCanvas" th:width="${#lists.size(fractal[0])}" th:height="${#lists.size(fractal)}" onwheel="handleWheelEvent(event)"></canvas>
+    <br>
+    <button onclick="zoom+=1;sendZoomRequest(400, 400)">Zoom</button>
 
     <br>
     <label for="fractalType">Select Fractal:</label>
     <select id="fractalType" onchange="changeFractalType()">
-        <option value="mandelbrot">Mandelbrot</option>
-        <option value="julia">Julia Set</option>
-        <option value="burningShip">Burning Ship Fractal</option>
-        <option value="tricorn">Tricorn Fractal</option>
-        <option value="multibrot">Multibrot Fractal</option>
-        <option value="sierpinski">Sierpinski Triangle</option>
-        <option value="dragon">Dragon Curve</option>
-        <option value="barnsley">Barnsley Fern</option>
-        <option value="serpinskiCarpet">Sierpinski Carpet</option>
-        <option value="phoenix">Phoenix Fractal</option>
-        <option value="sine">Sine Fractal</option>
-    </select>    
+        <option th:each="fractalOption : ${fractalOptions}" 
+                th:value="${fractalOption}" 
+                th:text="${fractalOption}" 
+                th:selected="${fractalOption == fractalType}">
+        </option>
+    </select>       
 
     <script th:inline="javascript">
-        var fractalData = /*[[${fractal}]]*/ null; // Access fractalData in JavaScript
+        var fractal = /*[[${fractal}]]*/ null; // Access fractalData in JavaScript
         var canvas = document.getElementById('fractalCanvas');
         var ctx = canvas.getContext('2d');
         var zoom = 1;
 
-        function drawFractal() {
+        var socket = new SockJS('/ws');
+        var stompClient = Stomp.over(socket);
+
+        stompClient.connect({}, function (frame) {
+        stompClient.subscribe('/fractals/fractal', function (fractalData) {
+            try {
+                var parsedData = JSON.parse(fractalData.body);
+                drawFractal(parsedData);
+            } catch (error) {
+                console.error('Error processing message:', error);
+            }
+            });
+        });
+
+        async function drawFractal(fractalData) {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
             fractalData.forEach(function(row, rowIndex) {
                 row.forEach(function(value, colIndex) {
                     var color = value < 1000 ? 'rgb(' + (value * 10) * 255 / 1000 + ',0,0)' : 'rgb(0,0,0)';
                     ctx.fillStyle = color;
-                    // make every box 10 px
                     ctx.fillRect(colIndex * zoom, rowIndex * zoom, zoom, zoom);
                 });
             });
         }
 
-        drawFractal();
+        drawFractal(fractal);
+
+        function handleWheelEvent(event) {
+            console.log("zooming... ");
+            event.preventDefault();
+
+            zoom += event.deltaY > 0 ? -1 : 1;
+            if (zoom < 1) {
+                zoom = 1;
+            }
+            
+            var x = event.offsetX;
+            var y = event.offsetY;
+
+            // check if the mouse is in the canvas
+            if (x >= 0 && x <= canvas.width && y >= 0 && y <= canvas.height) {
+                sendZoomRequest(x, y);
+            }
+        }
+
+        function changeFractalType() {
+            var fractalType = document.getElementById('fractalType').value;
+            stompClient.send("/app/changeFractal", {}, JSON.stringify({ fractalType: fractalType }));
+        }
+
+        function sendZoomRequest(x, y) {
+            stompClient.send("/app/zoom", {}, JSON.stringify({ x: x, y: y, zoom: zoom }));
+        }
     </script>
 </body>
 </html>
