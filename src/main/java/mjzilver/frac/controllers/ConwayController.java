@@ -49,7 +49,6 @@ public class ConwayController {
     @MessageMapping("/resizeBoard")
     @SendTo("/conway/board")
     public boolean[][] resizeBoard(BoardResizePayload payload) {
-        System.out.println("resizeBoard" + payload.getRows() + " " + payload.getCols());
         if(payload.getRows() < 10 || payload.getCols() < 10) {
             return conwayService.getBoard();
         }

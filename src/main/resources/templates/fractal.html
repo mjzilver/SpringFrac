@@ -64,7 +64,6 @@
         drawFractal(fractal);
 
         function handleWheelEvent(event) {
-            console.log("zooming... ");
             event.preventDefault();
 
             zoom += event.deltaY > 0 ? -1 : 1;

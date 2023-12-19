@@ -56,6 +56,7 @@
         var stompClient = Stomp.over(socket);
         var isPaused = false;
         var updateInterval = 100;
+        var intervalId = null;
 
         stompClient.debug = null;
 
@@ -120,7 +121,9 @@
         }
 
         function startUpdateInterval() {
-            setInterval(function () {
+            clearInterval(intervalId);
+
+            intervalId = setInterval(function () {
                 if (!isPaused) {
                     stompClient.send("/app/update");
                 }
@@ -134,6 +137,7 @@
         function updateIntervalChanged() {
             updateInterval = parseInt(document.getElementById('updateInterval').value);
             document.getElementById('intervalValue').innerText = updateInterval;
+            startUpdateInterval();
         }
 
         function updateRandomness() {
