@@ -22,6 +22,9 @@
     <br>
     <button onclick="renewClick()">Reset</button>
     <button onclick="toggleUpdate()">Pause/Resume</button>
+    <label>Wrap:</label>
+    <input type="radio" name="wrapOption" value="on" onclick="setWrap(true)" checked> On
+    <input type="radio" name="wrapOption" value="off" onclick="setWrap(false)"> Off
 
     <br>
     <label for="randomnessSlider">Random filled</label>
@@ -163,8 +166,12 @@
             stompClient.send("/app/text", {}, text);
         }
 
+        function setWrap(value) {
+            stompClient.send("/app/setWrap", {}, value);
+        }
+
         function convertToText() {
-            // map conway booleans to O and .
+            // map conway booleans to O and . (used by https://conwaylife.com)
             var text = conway.map(function (row) {
                 return row.map(function (value) {
                     return value ? 'O' : '.';

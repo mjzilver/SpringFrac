@@ -42,25 +42,25 @@ public class ConwayController {
     @MessageMapping("/click")
     @SendTo("/conway/board")
     public boolean[][] clickConway(BoardClickPayload payload) {
-        conwayService.click(payload.getRowIndex(), payload.getColIndex());
-        return conwayService.getBoard();
+        return conwayService.click(payload.getRowIndex(), payload.getColIndex());
     }
 
     @MessageMapping("/resizeBoard")
     @SendTo("/conway/board")
     public boolean[][] resizeBoard(BoardResizePayload payload) {
-        if(payload.getRows() < 10 || payload.getCols() < 10) {
-            return conwayService.getBoard();
-        }
-
-        conwayService.resize(payload.getRows(), payload.getCols());
-        return conwayService.getBoard();
+        return conwayService.resize(payload.getRows(), payload.getCols());
     }
 
     @MessageMapping("/text")
     @SendTo("/conway/board")
     public boolean[][] textConway(String text) {
         return conwayService.textToBoard(text);
+    }
+
+    @MessageMapping("/setWrap")
+    @SendTo("/conway/board")
+    public boolean[][] setWrap(boolean wrapped) {
+       return conwayService.setWrapped(wrapped);
     }
 }
 

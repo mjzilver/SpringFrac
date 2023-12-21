@@ -2,8 +2,8 @@ package mjzilver.frac.services;
 
 import org.springframework.stereotype.Service;
 
-import mjzilver.frac.models.FractalFactory;
-import mjzilver.frac.models.FractalGenerator;
+import mjzilver.frac.models.fractal.FractalFactory;
+import mjzilver.frac.models.fractal.FractalGenerator;
 
 @Service
 public class FractalService {

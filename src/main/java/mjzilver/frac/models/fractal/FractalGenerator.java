@@ -1,4 +1,4 @@
-package mjzilver.frac.models;
+package mjzilver.frac.models.fractal;
 
 public interface FractalGenerator {
     public int[][] generateFractal();

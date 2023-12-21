@@ -1,4 +1,4 @@
-package mjzilver.frac.models;
+package mjzilver.frac.models.fractal;
 
 public abstract class AbstractFractalGenerator implements FractalGenerator {
     protected int[][] fractal;
